@@ -143,21 +143,22 @@ class ModelTrainer:
 
         self.RATING_LOW = 1
         self.RATING_HIGH = 5
-        self.RATING_COUNT = self.RATING_HIGH - self.RATING_LOW + 1
         self.TR_SET_STR = '%sstar_TR_%s'
         self.TE_SET_STR = '%sstar_TE_%s'
-
-        self.train_x = numpy.zeros((self.TRAIN_COUNT*self.RATING_COUNT, self.model.vector_size))
-        self.train_y = numpy.zeros(self.TRAIN_COUNT*self.RATING_COUNT)
-        self.test_x = numpy.zeros((self.TEST_COUNT*self.RATING_COUNT, self.model.vector_size))
-        self.test_y = numpy.zeros(self.TEST_COUNT*self.RATING_COUNT)
         
         self.classifier = None
 
 
     def generate_sets(self, rating_range=None):
+        
         if rating_range == None:
             rating_range = range(self.RATING_LOW, self.RATING_HIGH + 1)
+
+        self.train_x = numpy.zeros((self.TRAIN_COUNT*len(rating_range), self.model.vector_size))
+        self.train_y = numpy.zeros(self.TRAIN_COUNT*len(rating_range))
+        self.test_x = numpy.zeros((self.TEST_COUNT*len(rating_range), self.model.vector_size))
+        self.test_y = numpy.zeros(self.TEST_COUNT*len(rating_range))
+
         for idx in range(len(rating_range)):
             i = rating_range[idx]
             for j in range(self.TRAIN_COUNT):
@@ -181,7 +182,7 @@ class ModelTrainer:
         return self.classifier.score(self.test_x[0: int(len(self.test_x)*ratio)], self.test_y[0: int(len(self.test_y)*ratio)])
 
     def classify(self, review):
-        vec = self.model.infer_vector(AmazonDataCleaner.format_text(review))
+        vec = self.model.infer_vector(AmazonDataCleaner.format_text(review).split())
         return self.classifier.predict([vec])
 
 
